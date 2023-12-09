@@ -15,12 +15,7 @@ import {
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import {
   mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  zora,
-  goerli,
+  holesky,
 } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { useRouter } from 'next/router';
@@ -28,26 +23,20 @@ import { useRouter } from 'next/router';
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    zora,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
+    holesky,
   ],
   [publicProvider()]
 );
 
-const projectId = 'YOUR_PROJECT_ID';
-
+const projectId = 'f0b36cd878ad293c484e3db43a0912e5';
 const { wallets } = getDefaultWallets({
-  appName: 'RainbowKit demo',
+  appName: 'Coinpassport V2',
   projectId,
   chains,
 });
 
-const demoAppInfo = {
-  appName: 'Rainbowkit Demo',
+const appInfo = {
+  appName: 'Coinpassport V2',
 };
 
 const connectors = connectorsForWallets([
@@ -73,7 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { locale } = useRouter() as { locale: Locale };
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider appInfo={demoAppInfo} chains={chains} locale={locale}>
+      <RainbowKitProvider appInfo={appInfo} chains={chains} locale={locale}>
         <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig>

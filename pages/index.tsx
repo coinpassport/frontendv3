@@ -3,6 +3,7 @@ import { Group } from "@semaphore-protocol/group";
 import { generateProof } from "@semaphore-protocol/proof";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
+import Link from 'next/link';
 
 async function createIdentity() {
   const group = new Group(1, 30);
@@ -27,7 +28,7 @@ async function createIdentity() {
 }
 
 const Home: NextPage = () => {
-  return (
+  return (<>
     <div
       style={{
         display: 'flex',
@@ -38,7 +39,10 @@ const Home: NextPage = () => {
       <ConnectButton />
       <button type="button" onClick={createIdentity}>Create ID</button>
     </div>
-  );
+    <p>
+      <Link href="/app"><button type="button">Launch App</button></Link>
+    </p>
+  </>);
 };
 
 export default Home;
