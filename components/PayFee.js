@@ -1,44 +1,8 @@
 import { useAccount, useContractReads, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, erc20ABI } from 'wagmi';
 
-import {chainContracts} from '../contracts.js';
 import {TokenDetails} from './TokenDetails.js';
 
-export default function PayFee() {
-  const { address: account } = useAccount();
-  const { chain } = useNetwork();
-  const contracts = chainContracts(chain);
-  const { data, isError, isLoading } = useContractReads({
-    contracts: [
-      {
-        // TODO support more than one feeChoice
-        ...contracts.FeeERC20,
-        functionName: 'feeChoices',
-        args: [ 0 ],
-      },
-      {
-        ...contracts.VerificationV2,
-        functionName: 'feePaidBlock',
-        args: [ account ],
-      },
-    ],
-    watch: true,
-  });
-  return (<>
-    {isLoading && <p>Loading fee data...</p>}
-    {isError && <p>Error loading fee data!</p>}
-    {data && data[0].result &&
-      <TokenVendor
-        feePaidBlock={data[1].result}
-        feeToken={data[0].result[0]}
-        feeAmount={data[0].result[1]}
-        {...{contracts}}
-      />
-    }
-  </>);
-}
-
-
-function TokenVendor({ feePaidBlock, feeToken, feeAmount, contracts }) {
+export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts }) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
