@@ -1,5 +1,6 @@
 import verificationV2ABI from './abi/VerificationV2.json';
 import feeERC20ABI from './abi/FeeERC20.json';
+import semaphoreABI from './abi/Semaphore.json';
 
 export const defaultChain = 17000;
 
@@ -10,13 +11,18 @@ export const byChain = {
     explorer: 'https://holesky.etherscan.io/',
     nativeCurrency: 'ETH',
     VerificationV2: {
-      address: '0x91f378af9a1baf49ed02bd20977031e3ffc3a38d',
+      address: '0xb6a775FBa3b5DFBbB80E47F777024244f53C5c06',
       abi: verificationV2ABI,
       chainId: 17000,
     },
     FeeERC20: {
       address: '0x925556a61d27e2e30e9e3a2eb45feedfd2003801',
       abi: feeERC20ABI,
+      chainId: 17000,
+    },
+    Semaphore: {
+      address: '0x05d816d46cf7a39600648ca040e94678b8342277',
+      abi: semaphoreABI,
       chainId: 17000,
     },
   },

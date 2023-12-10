@@ -5,6 +5,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {chainContracts} from '../contracts.js';
 import PayFee from '../components/PayFee.js';
 import PerformVerification from '../components/PerformVerification.js';
+import PublishVerification from '../components/PublishVerification.js';
+import MintPassport from '../components/MintPassport.js';
 
 const SERVER_URL = 'https://6ja7ykjh2ek5ojbx2hzhiga6sq0pvrcx.lambda-url.us-west-2.on.aws';
 export default function AppPage() {
@@ -12,6 +14,7 @@ export default function AppPage() {
   const { chain } = useNetwork();
   const contracts = chainContracts(chain);
   const [accountStatus, setAccountStatus] = useState(null);
+  const [idSeed, setIdSeed] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
@@ -70,9 +73,13 @@ export default function AppPage() {
         feePaidBlock={data[1].result}
         {...{chainId, account, SERVER_URL, accountStatus}}
       />
+      <PublishVerification
+        {...{contracts, accountStatus, idSeed, setIdSeed}}
+      />
+      <p>Switch account</p>
+      <MintPassport
+        {...{contracts, accountStatus, idSeed, setIdSeed}}
+      />
     </>}
-    <p>Publish verification</p>
-    <p>Switch account</p>
-    <p>Mint passport nft</p>
   </>);
 }

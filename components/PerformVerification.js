@@ -38,7 +38,7 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
             <span className="subtext">Please try again.</span>
           </div>)}
         <div className="field">
-          <button disabled={accountStatus?.status === 'verified' || feePaidBlock === 0n || isError || isLoading || isSuccess}>Perform Verification</button>
+          <button disabled={accountStatus?.status === 'verified' || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
         </div>
       </fieldset>
     </form>
