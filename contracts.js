@@ -11,7 +11,7 @@ export const byChain = {
     explorer: 'https://holesky.etherscan.io/',
     nativeCurrency: 'ETH',
     VerificationV2: {
-      address: '0x8c1f7c23a3b48131e06925b34de888f5c5101438',
+      address: '0x84e41A72DA417CfD9D719621Bc5Ad9e5609A4e30',
       abi: verificationV2ABI,
       chainId: 17000,
     },

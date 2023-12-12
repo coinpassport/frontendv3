@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount, useContractReads, useNetwork } from 'wagmi';
+import { useAccount, useContractReads, useNetwork, usePublicClient } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import {chainContracts} from '../contracts.js';
@@ -13,9 +13,14 @@ export default function AppPage() {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const contracts = chainContracts(chain);
+  const publicClient = usePublicClient({ chainId: contracts.chain });
   const [accountStatus, setAccountStatus] = useState(null);
   // TODO reset idSeed if groupId changes
+  // TODO countdown until next group change
+  // TODO support joining subsequent groups
   const [idSeed, setIdSeed] = useState(null);
+  const [acctInGroup, setAcctInGroup] = useState(null);
+  const [expiration, setExpiration] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
@@ -29,10 +34,46 @@ export default function AppPage() {
         functionName: 'feePaidBlock',
         args: [ account ],
       },
+      {
+        ...contracts.VerificationV2,
+        functionName: 'accountToIdHash',
+        args: [ account ],
+      },
+      {
+        ...contracts.VerificationV2,
+        functionName: 'groupId',
+      },
+      {
+        ...contracts.VerificationV2,
+        functionName: 'addressActive',
+        args: [ account ],
+      },
     ],
     watch: true,
+    async onSuccess(data) {
+      const idHashPublished = data[2].result && BigInt(data[2].result) > 0;
+      if(idHashPublished) {
+        const [expiration, inGroup] = await publicClient.multicall({
+          contracts: [
+            {
+              ...contracts.VerificationV2,
+              functionName: 'idHashExpiration',
+              args: [ data[2].result ],
+            },
+            {
+              ...contracts.VerificationV2,
+              functionName: 'idHashInGroup',
+              args: [ data[2].result, data[3].result ],
+            },
+          ],
+        });
+        setAcctInGroup(inGroup.result ? account : null);
+        setExpiration(expiration.result || null);
+      }
+    },
   });
 
+  const idHashPublished = data && data[2].result && BigInt(data[2].result) > 0;
   const chainId = '0x' + contracts.chain.toString(16);
   const fetchAccountStatus = async () => {
     const response = await fetch(`${SERVER_URL}/account-status`, {
@@ -48,6 +89,8 @@ export default function AppPage() {
   };
   useEffect(() => {
     fetchAccountStatus();
+    setAcctInGroup(null);
+    setExpiration(null);
   }, [account, chainId]);
   return (<>
     <div
@@ -59,11 +102,12 @@ export default function AppPage() {
     >
       <ConnectButton />
     </div>
-    <p>Hello!</p>
     {isLoading && <p>Loading data...</p>}
     {isError && <p>Error loading!</p>}
     {data && !data[0].result && <p>Major error!</p>}
     {data && data[0].result && <>
+      {data[4].result && <p>Connected wallet account is an active passport NFT holder!</p>}
+      {expiration && <p>Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()} (Date fuzzed from actual date on document to enhance privacy)</p>}
       <PayFee
         feePaidBlock={data[1].result}
         feeToken={data[0].result[0]}
@@ -72,14 +116,13 @@ export default function AppPage() {
       />
       <PerformVerification
         feePaidBlock={data[1].result}
-        {...{chainId, account, SERVER_URL, accountStatus}}
+        {...{chainId, SERVER_URL, accountStatus}}
       />
       <PublishVerification
-        {...{contracts, accountStatus, idSeed, setIdSeed}}
+        {...{contracts, accountStatus, idSeed, setIdSeed, idHashPublished}}
       />
-      <p>Switch account</p>
       <MintPassport
-        {...{contracts, accountStatus, idSeed, setIdSeed}}
+        {...{contracts, accountStatus, idSeed, setIdSeed, acctInGroup}}
       />
     </>}
   </>);

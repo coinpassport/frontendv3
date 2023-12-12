@@ -3,7 +3,13 @@ import { useAccount, useNetwork, useSwitchNetwork, useContractWrite, useWaitForT
 
 import {idSignature} from '../utils.js';
 
-export default function PublishVerification({ accountStatus, contracts, idSeed, setIdSeed }) {
+export default function PublishVerification({
+  accountStatus,
+  contracts,
+  idSeed,
+  setIdSeed,
+  idHashPublished
+}) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
@@ -36,7 +42,7 @@ export default function PublishVerification({ accountStatus, contracts, idSeed, 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const signature = await idSignature(walletClient.data, publicClient, contracts);
-    setIdSeed(signature);
+    setIdSeed({account, signature});
     const identity = new Identity(signature);
     write({
       args: [
@@ -48,8 +54,6 @@ export default function PublishVerification({ accountStatus, contracts, idSeed, 
     });
   }
 
-  if(!account) return;
-  // TODO check if account has already published
   return (
     <form onSubmit={handleSubmit}>
       <fieldset>
@@ -62,7 +66,7 @@ export default function PublishVerification({ accountStatus, contracts, idSeed, 
           : txSuccess ? (<p className="form-status">Success!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
-          <button disabled={!(accountStatus?.status === 'verified') || txLoading || txSuccess}>Sign and Submit</button>
+          <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || idSeed || txLoading || txSuccess}>Sign and Submit</button>
         </div>
       </fieldset>
     </form>

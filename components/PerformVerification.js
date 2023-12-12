@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useSignMessage } from 'wagmi';
+import { useSignMessage, useAccount } from 'wagmi';
 
 import { generateNonce } from '../utils.js';
 
-export default function PerformVerification({ accountStatus, feePaidBlock, chainId, account, SERVER_URL }) {
+export default function PerformVerification({ accountStatus, feePaidBlock, chainId, SERVER_URL }) {
+  const { address: account } = useAccount();
   const [nonce, setNonce] = useState(generateNonce);
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message: feePaidBlock?.toString() + '\n\n' + nonce,
@@ -38,7 +39,7 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
             <span className="subtext">Please try again.</span>
           </div>)}
         <div className="field">
-          <button disabled={accountStatus?.status === 'verified' || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
+          <button disabled={!account || accountStatus?.status === 'verified' || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
         </div>
       </fieldset>
     </form>

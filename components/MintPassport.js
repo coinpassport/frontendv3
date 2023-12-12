@@ -3,16 +3,26 @@ import { Identity } from "@semaphore-protocol/identity";
 import { Group } from "@semaphore-protocol/group";
 import { generateProof } from "@semaphore-protocol/proof";
 import { useAccount, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useWalletClient, usePublicClient } from 'wagmi';
+import { isAddressEqual } from 'viem';
 
 import {idSignature} from '../utils.js';
 
-export default function MintPassport({ accountStatus, contracts, idSeed, setIdSeed }) {
+export default function MintPassport({
+  accountStatus,
+  contracts,
+  idSeed,
+  setIdSeed,
+  acctInGroup
+}) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const [ loadingProof, setLoadingProof ] = useState(false);
   const walletClient = useWalletClient({ chainId: contracts.chain });
   const publicClient = usePublicClient({ chainId: contracts.chain });
+
+  const isInGroup = acctInGroup && idSeed && isAddressEqual(acctInGroup, idSeed.account);
+  const shouldSwitchAccount = isInGroup && account && isAddressEqual(idSeed.account, account);
 
   const {
     data,
@@ -41,7 +51,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
     event.preventDefault();
     if(!idSeed) {
       const signature = await idSignature(walletClient.data, publicClient, contracts);
-      setIdSeed(signature);
+      setIdSeed({account, signature});
       return;
     }
     setLoadingProof(true);
@@ -63,7 +73,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
       args: [ groupId.result ],
     });
     const idCommitments = await fetchIdCommitments(groupId.result, publicClient, contracts);
-    const identity = new Identity(idSeed);
+    const identity = new Identity(idSeed.signature);
     const group = new Group(Number(groupId.result), Number(groupDepth.result));
     group.addMembers(idCommitments);
 
@@ -84,22 +94,22 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
     });
   }
 
-  if(!account) return;
   return (
     <form onSubmit={handleSubmit}>
       <fieldset>
         <legend>Mint Passport NFT</legend>
         {loadingProof && <p className="form-status">Loading ZK proof...</p>}
         {isLoading && <p className="form-status">Waiting for user confirmation...</p>}
-        {isError && <p className="form-status error">Transaction error!</p>}
+        {isError && <p className="form-status error">Transaction error! (Remember: cannot join the same group twice)</p>}
         {isSuccess && (
           txError ? (<p className="form-status error">Transaction error!</p>)
           : txLoading ? (<p className="form-status">Waiting for transaction...</p>)
           : txSuccess ? (<p className="form-status">Success!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
+        {shouldSwitchAccount && <p className="help">Switch accounts in your wallet before minting the NFT to achieve anonymity.</p>}
         <div className="field">
-          <button disabled={idSeed}>Sign Identity Commitment</button>
-          <button disabled={!idSeed || loadingProof || txLoading || txSuccess}>Send Transaction</button>
+          <button disabled={!account || !acctInGroup || idSeed}>Sign Identity Commitment</button>
+          <button disabled={!account || !isInGroup || !idSeed || loadingProof || txLoading || txSuccess}>Mint NFT</button>
         </div>
       </fieldset>
     </form>

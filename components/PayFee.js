@@ -86,7 +86,6 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
       payWrite();
     }
   }
-  if(!account) return;
   return (
     <form onSubmit={handleSubmit}>
       <fieldset>
@@ -94,29 +93,26 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
           Pay Fee:
           <TokenDetails amount={feeAmount} symbol={true} address={feeToken} {...{contracts}} />
         </legend>
-        {feePaidBlock > 0 ? <span className="complete">Fee Already Paid!</span> : <>
-          {insufficientBalance && <span className="error">Insufficient Balance!</span>}
-          {approveLoading && <p className="form-status">Waiting for user confirmation...</p>}
-          {approveSuccess && (
-            approveTxError ? (<p className="form-status error">Approval transaction error!</p>)
-            : approveTxLoading ? (<p className="form-status">Waiting for approval transaction...</p>)
-            : approveTxSuccess ? (<p className="form-status">Approval success!</p>)
-            : (<p className="form-status">Approval transaction sent...</p>))}
-          {approveTxError && <p className="form-status error">Error!</p>}
-          {payLoading && <p className="form-status">Waiting for user confirmation...</p>}
-          {paySuccess && (
-            payTxError ? (<p className="form-status error">Transaction error!</p>)
-            : payTxLoading ? (<p className="form-status">Waiting for transaction...</p>)
-            : payTxSuccess ? (<p className="form-status">Fee Paid Successfully!</p>)
-            : (<p className="form-status">Transaction sent...</p>))}
-          {payTxError && <p className="form-status error">Error!</p>}
-          {!payTxSuccess &&
-            <div className="field">
-              <button disabled={!needsApproval || approveLoading || approveTxLoading}>Approve</button>
-              <button disabled={needsApproval || payLoading || payTxLoading}>Pay Fee</button>
-            </div>
-          }
-        </>}
+        {feePaidBlock > 0 && <span className="complete">Fee Already Paid!</span>}
+        {insufficientBalance && feePaidBlock < 1 && <span className="error">Insufficient Balance!</span>}
+        {approveLoading && <p className="form-status">Waiting for user confirmation...</p>}
+        {approveSuccess && (
+          approveTxError ? (<p className="form-status error">Approval transaction error!</p>)
+          : approveTxLoading ? (<p className="form-status">Waiting for approval transaction...</p>)
+          : approveTxSuccess ? (<p className="form-status">Approval success!</p>)
+          : (<p className="form-status">Approval transaction sent...</p>))}
+        {approveTxError && <p className="form-status error">Error!</p>}
+        {payLoading && <p className="form-status">Waiting for user confirmation...</p>}
+        {paySuccess && (
+          payTxError ? (<p className="form-status error">Transaction error!</p>)
+          : payTxLoading ? (<p className="form-status">Waiting for transaction...</p>)
+          : payTxSuccess ? (<p className="form-status">Fee Paid Successfully!</p>)
+          : (<p className="form-status">Transaction sent...</p>))}
+        {payTxError && <p className="form-status error">Error!</p>}
+        <div className="field">
+          <button disabled={!account || !needsApproval || approveLoading || approveTxLoading}>Approve</button>
+          <button disabled={!account || payTxSuccess || needsApproval || payLoading || payTxLoading}>Pay Fee</button>
+        </div>
       </fieldset>
     </form>
   );
