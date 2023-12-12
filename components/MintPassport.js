@@ -2,28 +2,17 @@ import React, { useState } from 'react';
 import { Identity } from "@semaphore-protocol/identity";
 import { Group } from "@semaphore-protocol/group";
 import { generateProof } from "@semaphore-protocol/proof";
-import { useAccount, useSignMessage, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, usePublicClient } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useWalletClient, usePublicClient } from 'wagmi';
 
-const FOUR_WEEKS = 2419200;
+import {idSignature} from '../utils.js';
 
 export default function MintPassport({ accountStatus, contracts, idSeed, setIdSeed }) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const [ loadingProof, setLoadingProof ] = useState(false);
+  const walletClient = useWalletClient({ chainId: contracts.chain });
   const publicClient = usePublicClient({ chainId: contracts.chain });
-
-  const {
-    isError: signError,
-    isLoading: signLoading,
-    isSuccess: signSuccess,
-    signMessage
-  } = useSignMessage({
-    message: 'Coinpassport V2 Identity Commitment\n\nNever sign this message on any website except Coinpassport.',
-    onSuccess: async (signature) => {
-      setIdSeed(signature);
-    },
-  });
 
   const {
     data,
@@ -33,7 +22,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
     write
   } = useContractWrite({
     ...contracts.VerificationV2,
-    functionName: 'sumbitProof',
+    functionName: 'submitProof',
   });
   const {
     isError: txError,
@@ -51,11 +40,12 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
   const handleSubmit = async (event) => {
     event.preventDefault();
     if(!idSeed) {
-      signMessage();
+      const signature = await idSignature(walletClient.data, publicClient, contracts);
+      setIdSeed(signature);
       return;
     }
     setLoadingProof(true);
-    const [groupId, beginningOfTime] = await publicClient.multicall({
+    const [groupId, groupDepth] = await publicClient.multicall({
       contracts: [
         {
           ...contracts.VerificationV2,
@@ -63,7 +53,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
         },
         {
           ...contracts.VerificationV2,
-          functionName: 'beginningOfTime',
+          functionName: 'groupDepth',
         },
       ],
     });
@@ -72,25 +62,26 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
       functionName: 'getMerkleTreeRoot',
       args: [ groupId.result ],
     });
-    const idCommitments = await fetchIdCommitments(publicClient, contracts);
+    const idCommitments = await fetchIdCommitments(groupId.result, publicClient, contracts);
     const identity = new Identity(idSeed);
-    const group = new Group(Number(groupId.result), 30);
+    const group = new Group(Number(groupId.result), Number(groupDepth.result));
     group.addMembers(idCommitments);
 
-    const expirationRemaining = (accountStatus.expiration - Number(beginningOfTime.result));
-    if(expirationRemaining < 0) {
-      alert('Passport expired!');
-      return;
-    }
-    const signal = Math.ceil(expirationRemaining / FOUR_WEEKS);
-    console.log(idCommitments, groupId, merkleRoot, beginningOfTime, signal, expirationRemaining);
-
+    const signal = 1;
     const fullProof = await generateProof(identity, group, merkleRoot, signal, {
-      zkeyFilePath: "/semaphore.zkey",
-      wasmFilePath: "/semaphore.wasm",
+      zkeyFilePath: `/semaphore${groupDepth.result}.zkey`,
+      wasmFilePath: `/semaphore${groupDepth.result}.wasm`,
     });
-    console.log(fullProof);
     setLoadingProof(false);
+    write({
+      args: [
+        BigInt(merkleRoot),
+        BigInt(signal),
+        BigInt(fullProof.nullifierHash),
+        BigInt(fullProof.externalNullifier),
+        fullProof.proof.map(x => BigInt(x)),
+      ],
+    });
   }
 
   if(!account) return;
@@ -107,7 +98,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
           : txSuccess ? (<p className="form-status">Success!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
-          <button disabled={idSeed || signLoading || signSuccess}>Sign Identity Commitment</button>
+          <button disabled={idSeed}>Sign Identity Commitment</button>
           <button disabled={!idSeed || loadingProof || txLoading || txSuccess}>Send Transaction</button>
         </div>
       </fieldset>
@@ -116,7 +107,7 @@ export default function MintPassport({ accountStatus, contracts, idSeed, setIdSe
 }
 
 
-async function fetchIdCommitments(publicClient, contracts) {
+async function fetchIdCommitments(groupId, publicClient, contracts) {
   const count = Number(await publicClient.readContract({
     ...contracts.VerificationV2,
     functionName: 'identityCommitmentCount',
@@ -130,7 +121,7 @@ async function fetchIdCommitments(publicClient, contracts) {
       toLoad.push({
         ...contracts.VerificationV2,
         functionName: 'identityCommitments',
-        args: [ out.length + i ],
+        args: [ groupId, out.length + i ],
       });
     }
     const batch = await publicClient.multicall({

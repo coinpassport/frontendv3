@@ -14,6 +14,7 @@ export default function AppPage() {
   const { chain } = useNetwork();
   const contracts = chainContracts(chain);
   const [accountStatus, setAccountStatus] = useState(null);
+  // TODO reset idSeed if groupId changes
   const [idSeed, setIdSeed] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
@@ -44,7 +45,6 @@ export default function AppPage() {
 
     const jsonData = await response.json();
     setAccountStatus(jsonData);
-    console.log(jsonData);
   };
   useEffect(() => {
     fetchAccountStatus();
@@ -62,6 +62,7 @@ export default function AppPage() {
     <p>Hello!</p>
     {isLoading && <p>Loading data...</p>}
     {isError && <p>Error loading!</p>}
+    {data && !data[0].result && <p>Major error!</p>}
     {data && data[0].result && <>
       <PayFee
         feePaidBlock={data[1].result}
