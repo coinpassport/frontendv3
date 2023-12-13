@@ -63,10 +63,10 @@ export default function PublishVerification({
         {isSuccess && (
           txError ? (<p className="form-status error">Transaction error!</p>)
           : txLoading ? (<p className="form-status">Waiting for transaction...</p>)
-          : txSuccess ? (<p className="form-status">Success!</p>)
+          : txSuccess ? (<p className="complete">Published Successfully!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
-          <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || idSeed || txLoading || txSuccess}>Sign and Submit</button>
+          <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || txLoading || txSuccess}>Sign and Submit</button>
         </div>
       </fieldset>
     </form>

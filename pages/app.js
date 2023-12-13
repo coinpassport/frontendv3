@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useContractReads, useNetwork, usePublicClient } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Head from 'next/head';
+import Link from 'next/link';
 
 import {chainContracts} from '../contracts.js';
 import PayFee from '../components/PayFee.js';
 import PerformVerification from '../components/PerformVerification.js';
 import PublishVerification from '../components/PublishVerification.js';
 import MintPassport from '../components/MintPassport.js';
+import ToolTip from '../components/ToolTip.js';
 
 const SERVER_URL = 'https://6ja7ykjh2ek5ojbx2hzhiga6sq0pvrcx.lambda-url.us-west-2.on.aws';
 export default function AppPage() {
@@ -93,21 +96,24 @@ export default function AppPage() {
     setExpiration(null);
   }, [account, chainId]);
   return (<>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        padding: 12,
-      }}
-    >
-      <ConnectButton />
-    </div>
-    {isLoading && <p>Loading data...</p>}
-    {isError && <p>Error loading!</p>}
-    {data && !data[0].result && <p>Major error!</p>}
+    <Head>
+      <title>Coinpassport</title>
+    </Head>
+    <div id="body-bg">
+        <header>
+          <nav>
+            <Link href="/"><h1>CoinPassport</h1></Link>
+          </nav>
+          <ConnectButton />
+        </header>
+        <div className="wizard">
+        {!account && <p className="welcome">Connect your wallet to begin.</p>}
+    {isLoading && <p className="form-status loading">Loading data...</p>}
+    {isError && <p className="error">Error loading!</p>}
+    {data && !data[0].result && <p className="error">Error! Please refresh the page.</p>}
     {data && data[0].result && <>
-      {data[4].result && <p>Connected wallet account is an active passport NFT holder!</p>}
-      {expiration && <p>Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()} (Date fuzzed from actual date on document to enhance privacy)</p>}
+      {data[4].result && <p className="complete">Connected wallet account is an active passport NFT holder!</p>}
+      {expiration && <p className="complete">Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()}<ToolTip message="Date fuzzed from actual date on document to enhance privacy" id="date-fuzzed" /></p>}
       <PayFee
         feePaidBlock={data[1].result}
         feeToken={data[0].result[0]}
@@ -125,5 +131,15 @@ export default function AppPage() {
         {...{contracts, accountStatus, idSeed, setIdSeed, acctInGroup}}
       />
     </>}
+    </div>
+    <footer>
+      <menu>
+        <li>&copy; 2023</li>
+        <li><Link href="/">Home</Link></li>
+        <li><Link href="/docs">Docs</Link></li>
+        <li><Link href="/privacy-policy">Privacy</Link></li>
+      </menu>
+    </footer>
+    </div>
   </>);
 }

@@ -5,6 +5,7 @@ import { generateProof } from "@semaphore-protocol/proof";
 import { useAccount, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useWalletClient, usePublicClient } from 'wagmi';
 import { isAddressEqual } from 'viem';
 
+import ToolTip from '../components/ToolTip.js';
 import {idSignature} from '../utils.js';
 
 export default function MintPassport({
@@ -100,7 +101,7 @@ export default function MintPassport({
         <legend>Mint Passport NFT</legend>
         {loadingProof && <p className="form-status">Loading ZK proof...</p>}
         {isLoading && <p className="form-status">Waiting for user confirmation...</p>}
-        {isError && <p className="form-status error">Transaction error! (Remember: cannot join the same group twice)</p>}
+        {isError && <p className="form-status error">Transaction error!<ToolTip message="Remember: cannot join the same group twice" id="no-dupes" /></p>}
         {isSuccess && (
           txError ? (<p className="form-status error">Transaction error!</p>)
           : txLoading ? (<p className="form-status">Waiting for transaction...</p>)
@@ -109,7 +110,7 @@ export default function MintPassport({
         {shouldSwitchAccount && <p className="help">Switch accounts in your wallet before minting the NFT to achieve anonymity.</p>}
         <div className="field">
           <button disabled={!account || !acctInGroup || idSeed}>Sign Identity Commitment</button>
-          <button disabled={!account || !isInGroup || !idSeed || loadingProof || txLoading || txSuccess}>Mint NFT</button>
+          <button disabled={!account || !idSeed || loadingProof || isLoading || txLoading || txSuccess}>Mint NFT</button>
         </div>
       </fieldset>
     </form>

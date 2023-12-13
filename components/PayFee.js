@@ -90,10 +90,10 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
     <form onSubmit={handleSubmit}>
       <fieldset>
         <legend>
-          Pay Fee:
+          Pay Fee:&nbsp;
           <TokenDetails amount={feeAmount} symbol={true} address={feeToken} {...{contracts}} />
         </legend>
-        {feePaidBlock > 0 && <span className="complete">Fee Already Paid!</span>}
+        {feePaidBlock > 0 && <span className="complete">Fee Paid!</span>}
         {insufficientBalance && feePaidBlock < 1 && <span className="error">Insufficient Balance!</span>}
         {approveLoading && <p className="form-status">Waiting for user confirmation...</p>}
         {approveSuccess && (
@@ -106,7 +106,7 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
         {paySuccess && (
           payTxError ? (<p className="form-status error">Transaction error!</p>)
           : payTxLoading ? (<p className="form-status">Waiting for transaction...</p>)
-          : payTxSuccess ? (<p className="form-status">Fee Paid Successfully!</p>)
+          : payTxSuccess ? (<></>)
           : (<p className="form-status">Transaction sent...</p>))}
         {payTxError && <p className="form-status error">Error!</p>}
         <div className="field">

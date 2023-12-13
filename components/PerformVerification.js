@@ -7,7 +7,7 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
   const { address: account } = useAccount();
   const [nonce, setNonce] = useState(generateNonce);
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
-    message: feePaidBlock?.toString() + '\n\n' + nonce,
+    message: 'Paid Fee on Block #' + feePaidBlock?.toString() + '\n\n' + nonce,
     onSuccess: async (signature) => {
       const response = await fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
@@ -39,7 +39,7 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
             <span className="subtext">Please try again.</span>
           </div>)}
         <div className="field">
-          <button disabled={!account || accountStatus?.status === 'verified' || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
+          <button disabled={!account || (accountStatus?.status === 'verified' && accountStatus.feePaidBlock === Number(feePaidBlock)) || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
         </div>
       </fieldset>
     </form>
