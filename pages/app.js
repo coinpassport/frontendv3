@@ -107,7 +107,7 @@ export default function AppPage() {
           <ConnectButton />
         </header>
         <div className="wizard">
-        {!account && <p className="welcome">Connect your wallet to begin.</p>}
+        {!account && <div className="wizard-connect"><p className="welcome">Connect your wallet to begin.</p><ConnectButton /></div>}
     {isLoading && <p className="form-status loading">Loading data...</p>}
     {isError && <p className="error">Error loading!</p>}
     {data && !data[0].result && <p className="error">Error! Please refresh the page.</p>}

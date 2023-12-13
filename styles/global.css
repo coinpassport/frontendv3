@@ -43,6 +43,8 @@ h2 {font-family:SignikaNegative;font-weight:400;}
   border-radius: 10px;
   padding: 30px;
 }
+.wizard-connect>div {justify-content:space-around;}
+.wizard-connect>p {margin-bottom:15px;}
 
 button {transform:scale(1.025);padding: 15px 20px; background: #edb851; color: #000; border: 0; border-radius: 10px; font-size: 110%; cursor: pointer; position:relative; margin:5px;}
 button.cancel { background: #9d9d9d; }
