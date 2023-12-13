@@ -26,6 +26,7 @@ export default function PublishVerification({
     ...contracts.VerificationV2,
     functionName: 'publishVerification',
   });
+  // TODO onSuccess should redact personal info
   const {
     isError: txError,
     isLoading: txLoading,

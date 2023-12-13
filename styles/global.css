@@ -1,5 +1,6 @@
 @font-face { font-family: Inter; font-weight: 400; src: url(Inter-Regular.ttf); }
 @font-face { font-family: Inter; font-weight: 500; src: url(Inter-SemiBold.ttf); }
+@font-face { font-family: SignikaNegative; font-weight: 400; src: url(SignikaNegative-Regular.ttf); }
 
 * { box-sizing: border-box; }
 
@@ -32,6 +33,7 @@ header {
 }
 header nav a { text-decoration:none;}
 header h1 {color:#fff; margin:0; padding:10px; font-size:130%;}
+h2 {font-family:SignikaNegative;font-weight:400;}
 
 .wizard {
   max-width: 500px;
