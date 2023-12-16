@@ -1,6 +1,7 @@
 import verificationV2ABI from './abi/VerificationV2.json';
 import feeERC20ABI from './abi/FeeERC20.json';
 import semaphoreABI from './abi/Semaphore.json';
+import Groth16VerifierABI from './abi/Groth16VerifierABI.json';
 
 export const defaultChain = 17000;
 
@@ -23,6 +24,11 @@ export const byChain = {
     Semaphore: {
       address: '0x05d816d46cf7a39600648ca040e94678b8342277',
       abi: semaphoreABI,
+      chainId: 17000,
+    },
+    expVerifier: {
+      address: '0x8abd8d9fab3f711b16d15ce48747db49672eedb2',
+      abi: Groth16VerifierABI,
       chainId: 17000,
     },
   },
