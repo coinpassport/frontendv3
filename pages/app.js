@@ -3,7 +3,6 @@ import { useAccount, useContractReads, useNetwork, usePublicClient } from 'wagmi
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Head from 'next/head';
 import Link from 'next/link';
-import Script from 'next/script';
 
 import {chainContracts} from '../contracts.js';
 import PayFee from '../components/PayFee.js';
@@ -100,7 +99,6 @@ export default function AppPage() {
     <Head>
       <title>Coinpassport</title>
     </Head>
-    <Script src="/snarkjs.min.js" />
     <div id="body-bg">
         <header>
           <nav>
