@@ -1,6 +1,7 @@
 import { useAccount, useContractReads, useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, erc20ABI } from 'wagmi';
 
 import {TokenDetails} from './TokenDetails.js';
+import ToolTip from './ToolTip.js';
 
 export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts }) {
   const { address: account } = useAccount();
@@ -26,11 +27,17 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
         functionName: 'allowance',
         args: [ account, contracts.FeeERC20.address ],
       },
+      {
+        ...contracts.FeeERC20,
+        functionName: 'balanceOf',
+        args: [ account ],
+      },
     ],
     watch: true,
   });
   const needsApproval = approvalData && (approvalData[1].result < feeAmount);
   const insufficientBalance = approvalData && (approvalData[0].result < feeAmount);
+  const hasNativeToken = approvalData && (approvalData[2].result > 0);
 
   const {
     data: approveData,
@@ -76,6 +83,15 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
     <button onClick={() => switchNetwork(Number(contracts.chain))} type="button">Switch to {contracts.name}</button>
   );
 
+  const payNative = (event) => {
+    event.preventDefault();
+    payWrite({
+      ...contracts.VerificationV2,
+      functionName: 'payFee',
+      args: [],
+    });
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if(needsApproval) {
@@ -92,6 +108,10 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
         <legend>
           Pay Fee:&nbsp;
           <TokenDetails amount={feeAmount} symbol={true} address={feeToken} {...{contracts}} />
+          {hasNativeToken && <>
+            &nbsp;or native fee token
+            <ToolTip message="Your account holds a native fee token that may be redeemed for a verification." id="native-token" />
+          </>}
         </legend>
         {feePaidBlock > 0 && <span className="complete">Fee Paid!</span>}
         {insufficientBalance && feePaidBlock < 1 && <span className="error">Insufficient Balance!</span>}
@@ -112,6 +132,7 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
         <div className="field">
           <button disabled={!account || !needsApproval || approveLoading || approveTxLoading}>Approve</button>
           <button disabled={!account || payTxSuccess || needsApproval || payLoading || payTxLoading}>Pay Fee</button>
+          {hasNativeToken && <button disabled={!account || payTxSuccess || !hasNativeToken || payLoading || payTxLoading} type="button" onClick={payNative}>Redeem Native</button>}
         </div>
       </fieldset>
     </form>

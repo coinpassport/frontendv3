@@ -129,8 +129,9 @@ legend {
   border-radius: 5px;
   position:relative;
 }
-legend:before {position:absolute; top:-5px; left:-6px; width: 10px; bottom:14px; background:#fff; content: " "}
-legend:after {position:absolute; top:-5px; right:-6px; width: 10px; bottom:14px; background:#fff; content: " "}
+legend:before,
+legend:after {position:absolute; top:-5px; right:-6px; width: 10px; bottom:50%; background:#fff; content: " "}
+legend:before{right:auto; left:-6px;}
 
 .error,
 .form-status,
@@ -150,6 +151,7 @@ legend:after {position:absolute; top:-5px; right:-6px; width: 10px; bottom:14px;
 }
 
 .tooltip-message {
+  z-index: 100;
   position: absolute;
   bottom: 70%;
   left: 50%;
