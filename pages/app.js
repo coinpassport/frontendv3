@@ -10,6 +10,7 @@ import PerformVerification from '../components/PerformVerification.js';
 import PublishVerification from '../components/PublishVerification.js';
 import MintPassport from '../components/MintPassport.js';
 import ToolTip from '../components/ToolTip.js';
+import {Remaining} from '../components/Remaining.js';
 
 const SERVER_URL = 'https://6ja7ykjh2ek5ojbx2hzhiga6sq0pvrcx.lambda-url.us-west-2.on.aws';
 export default function AppPage() {
@@ -18,42 +19,51 @@ export default function AppPage() {
   const contracts = chainContracts(chain);
   const publicClient = usePublicClient({ chainId: contracts.chain });
   const [accountStatus, setAccountStatus] = useState(null);
-  // TODO reset idSeed if groupId changes
-  // TODO countdown until next group change
-  // TODO support joining subsequent groups
+  // TODO must be able to publish on multiple chains
   const [idSeed, setIdSeed] = useState(null);
+  const [groupId, setGroupId] = useState(null);
   const [acctInGroup, setAcctInGroup] = useState(null);
   const [expiration, setExpiration] = useState(null);
+  const [nextGroupStart, setNextGroupStart] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
-      {
+      { // 0
         // TODO support more than one feeChoice
         ...contracts.FeeERC20,
         functionName: 'feeChoices',
         args: [ 0 ],
       },
-      {
+      { // 1
         ...contracts.VerificationV2,
         functionName: 'feePaidBlock',
         args: [ account ],
       },
-      {
+      { // 2
         ...contracts.VerificationV2,
         functionName: 'accountToIdHash',
         args: [ account ],
       },
-      {
+      { // 3
         ...contracts.VerificationV2,
         functionName: 'groupId',
       },
-      {
+      { // 4
         ...contracts.VerificationV2,
         functionName: 'addressActive',
         args: [ account ],
       },
+      { // 5
+        ...contracts.VerificationV2,
+        functionName: 'groupIndex',
+      },
+      { // 6
+        ...contracts.VerificationV2,
+        functionName: 'groupCount',
+      },
     ],
     watch: true,
     async onSuccess(data) {
+      setGroupId(data[3].result);
       const idHashPublished = data[2].result && BigInt(data[2].result) > 0;
       if(idHashPublished) {
         const [expiration, inGroup] = await publicClient.multicall({
@@ -73,6 +83,17 @@ export default function AppPage() {
         setAcctInGroup(inGroup.result ? account : null);
         setExpiration(expiration.result || null);
       }
+
+      if(data[5].result + 1n < data[6].result) {
+        const nextGroup = await publicClient.readContract({
+          ...contracts.VerificationV2,
+          functionName: 'groups',
+          args: [ data[5].result + 1n ],
+        });
+        setNextGroupStart(nextGroup[2]);
+      } else {
+        setNextGroupStart(null);
+      }
     },
   });
 
@@ -90,6 +111,9 @@ export default function AppPage() {
     const jsonData = await response.json();
     setAccountStatus(jsonData);
   };
+  useEffect(() => {
+    setIdSeed(null);
+  }, [groupId]);
   useEffect(() => {
     fetchAccountStatus();
     setAcctInGroup(null);
@@ -112,8 +136,12 @@ export default function AppPage() {
     {isError && <p className="error">Error loading!</p>}
     {data && !data[0].result && <p className="error">Error! Please refresh the page.</p>}
     {data && data[0].result && <>
-      {data[4].result && <p className="complete">Connected wallet account is an active passport NFT holder!</p>}
+      {account && data[4].result && <p className="complete">Connected wallet account is an active passport NFT holder!</p>}
       {expiration && <p className="complete">Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()}<ToolTip message="Date fuzzed from actual date on document to enhance privacy" id="date-fuzzed" /></p>}
+      {nextGroupStart && <p className="form-status">
+        Next group starts in <Remaining value={nextGroupStart} onlyFirst={true} />
+        <ToolTip message={(new Date(Number(nextGroupStart) * 1000)).toLocaleString()} id="next-group-time" />
+      </p>}
       <PayFee
         feePaidBlock={data[1].result}
         feeToken={data[0].result[0]}
@@ -125,7 +153,7 @@ export default function AppPage() {
         {...{chainId, SERVER_URL, accountStatus}}
       />
       <PublishVerification
-        {...{contracts, accountStatus, idSeed, setIdSeed, idHashPublished}}
+        {...{contracts, accountStatus, idSeed, setIdSeed, idHashPublished, acctInGroup}}
       />
       <MintPassport
         {...{contracts, accountStatus, idSeed, setIdSeed, acctInGroup}}

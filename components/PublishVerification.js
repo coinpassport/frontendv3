@@ -8,7 +8,8 @@ export default function PublishVerification({
   contracts,
   idSeed,
   setIdSeed,
-  idHashPublished
+  idHashPublished,
+  acctInGroup
 }) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
@@ -24,7 +25,6 @@ export default function PublishVerification({
     write
   } = useContractWrite({
     ...contracts.VerificationV2,
-    functionName: 'publishVerification',
   });
   // TODO onSuccess should redact personal info
   const {
@@ -46,12 +46,15 @@ export default function PublishVerification({
     setIdSeed({account, signature});
     const identity = new Identity(signature);
     write({
-      args: [
+      functionName: !idHashPublished ? 'publishVerification' : 'joinNewGroup',
+      args: !idHashPublished ? [
         accountStatus?.expiration,
         accountStatus?.idHash,
         identity.commitment,
         accountStatus?.signature
-      ]
+      ] : [
+        identity.commitment,
+      ],
     });
   }
 
@@ -68,6 +71,7 @@ export default function PublishVerification({
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
           <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || txLoading || txSuccess}>Sign and Submit</button>
+          <button disabled={!account || !(accountStatus?.status === 'verified') || (idHashPublished && acctInGroup) || txLoading || txSuccess}>Join Current Group</button>
         </div>
       </fieldset>
     </form>
