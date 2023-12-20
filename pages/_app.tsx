@@ -16,6 +16,7 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import {
   mainnet,
   holesky,
+  polygonMumbai,
 } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { useRouter } from 'next/router';
@@ -24,6 +25,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     mainnet,
     holesky,
+    polygonMumbai,
   ],
   [publicProvider()]
 );

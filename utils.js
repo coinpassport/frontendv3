@@ -12,7 +12,7 @@ export async function idSignature(walletClient, publicClient, contracts) {
     functionName: 'groupId',
   });
   const signature = await walletClient.signMessage({
-    message: `Coinpassport V2 Identity Commitment\n\nGroup ID: ${groupId}\n\nNever sign this message on any website except Coinpassport.`,
+    message: `Coinpassport V2 Identity Commitment\n\nChain ID: ${contracts.name} (${contracts.chain})\n\nGroup ID: ${groupId}\n\nNever sign this message on any website except Coinpassport.`,
   });
   return signature;
 }

@@ -26,7 +26,6 @@ export default function PublishVerification({
   } = useContractWrite({
     ...contracts.VerificationV2,
   });
-  // TODO onSuccess should redact personal info
   const {
     isError: txError,
     isLoading: txLoading,
@@ -71,7 +70,7 @@ export default function PublishVerification({
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
           <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || txLoading || txSuccess}>Sign and Submit</button>
-          <button disabled={!account || !(accountStatus?.status === 'verified') || (idHashPublished && acctInGroup) || txLoading || txSuccess}>Join Current Group</button>
+          <button disabled={!account || !(accountStatus?.status === 'verified') || !idHashPublished || acctInGroup || txLoading || txSuccess}>Join Current Group</button>
         </div>
       </fieldset>
     </form>

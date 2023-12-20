@@ -26,6 +26,27 @@ export const byChain = {
       chainId: 17000,
     },
   },
+  80001: {
+    chain: 80001,
+    name: 'Mumbai',
+    explorer: 'https://mumbai.polygonscan.com/',
+    nativeCurrency: 'MATIC',
+    VerificationV2: {
+      address: '0xeded09fea28c8a21c69007019f31147df3a4180f',
+      abi: verificationV2ABI,
+      chainId: 80001,
+    },
+    FeeERC20: {
+      address: '0xd071eaa1e9cc0c2c50ef7c25a2866ce2c4bc4bc3',
+      abi: feeERC20ABI,
+      chainId: 80001,
+    },
+    Semaphore: {
+      address: '0x3889927F0B5Eb1a02C6E2C20b39a1Bd4EAd76131',
+      abi: semaphoreABI,
+      chainId: 80001,
+    },
+  },
 };
 
 export function chainContracts(chain) {

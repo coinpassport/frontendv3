@@ -19,6 +19,7 @@ export default function MintPassport({
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const [ loadingProof, setLoadingProof ] = useState(false);
+  const [ errorMsg, setErrorMsg ] = useState(null);
   const walletClient = useWalletClient({ chainId: contracts.chain });
   const publicClient = usePublicClient({ chainId: contracts.chain });
 
@@ -55,35 +56,45 @@ export default function MintPassport({
       setIdSeed({account, signature});
       return;
     }
+    setErrorMsg(null);
     setLoadingProof(true);
-    const [groupId, groupDepth] = await publicClient.multicall({
-      contracts: [
-        {
-          ...contracts.VerificationV2,
-          functionName: 'groupId',
-        },
-        {
-          ...contracts.VerificationV2,
-          functionName: 'groupDepth',
-        },
-      ],
-    });
-    const merkleRoot = await publicClient.readContract({
-      ...contracts.Semaphore,
-      functionName: 'getMerkleTreeRoot',
-      args: [ groupId.result ],
-    });
-    const idCommitments = await fetchIdCommitments(groupId.result, publicClient, contracts);
-    const identity = new Identity(idSeed.signature);
-    const group = new Group(Number(groupId.result), Number(groupDepth.result));
-    group.addMembers(idCommitments);
-
     const signal = 1;
-    const fullProof = await generateProof(identity, group, merkleRoot, signal, {
-      zkeyFilePath: `/semaphore${groupDepth.result}.zkey`,
-      wasmFilePath: `/semaphore${groupDepth.result}.wasm`,
-    });
-    setLoadingProof(false);
+    let merkleRoot, fullProof, hadError;
+    try {
+      const [groupId, groupDepth] = await publicClient.multicall({
+        contracts: [
+          {
+            ...contracts.VerificationV2,
+            functionName: 'groupId',
+          },
+          {
+            ...contracts.VerificationV2,
+            functionName: 'groupDepth',
+          },
+        ],
+      });
+      merkleRoot = await publicClient.readContract({
+        ...contracts.Semaphore,
+        functionName: 'getMerkleTreeRoot',
+        args: [ groupId.result ],
+      });
+      const idCommitments = await fetchIdCommitments(groupId.result, publicClient, contracts);
+      const identity = new Identity(idSeed.signature);
+      const group = new Group(Number(groupId.result), Number(groupDepth.result));
+      group.addMembers(idCommitments);
+
+      fullProof = await generateProof(identity, group, merkleRoot, signal, {
+        zkeyFilePath: `/semaphore${groupDepth.result}.zkey`,
+        wasmFilePath: `/semaphore${groupDepth.result}.wasm`,
+      });
+    } catch(error) {
+      console.error(error);
+      setErrorMsg(error.message);
+      hadError = true;
+    } finally {
+      setLoadingProof(false);
+      if(hadError) return;
+    }
     write({
       args: [
         BigInt(merkleRoot),
@@ -100,6 +111,7 @@ export default function MintPassport({
       <fieldset>
         <legend>Mint Passport NFT</legend>
         {loadingProof && <p className="form-status">Loading ZK proof...</p>}
+        {errorMsg && <p className="form-status error">{errorMsg}</p>}
         {isLoading && <p className="form-status">Waiting for user confirmation...</p>}
         {isError && <p className="form-status error">Transaction error!<ToolTip message="Remember: cannot join the same group twice" id="no-dupes" /></p>}
         {isSuccess && (
