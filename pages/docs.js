@@ -39,19 +39,21 @@ export default function DocsPage() {
           <h3 id="access-to-data">Who has access to my verification data?</h3>
           <p>Both Coinpassport and Stripe will have access to the information that you submit through the verification flow. We rely on Stripe to help store your verification data. Stripe uses access controls and security standards that are at least as stringent as those used to handle their own KYC and payments compliance data.</p>
           <p><a href="https://support.stripe.com/questions/common-questions-about-stripe-identity">Learn more</a> about how Stripe handles and stores your data.</p>
-          <p>After becoming verified, your personal data will be redacted from Stripe. The only data that is stored is the document expiration date (rounded by 2 weeks for privacy) and a hash of the country and document number.</p>
+          <p>Immediately after verification, your personal data will be redacted from Stripe. The only data that is stored is the document expiration date (rounded by 2 weeks for privacy) and a hash of the country and document number.</p>
           <h3 id="how-its-anonymous">How is it anonymous?</h3>
-          <p>Fee payment and publishing the verification status are conducted with one account then you can switch to another account to mint the passport NFT. This passport NFT will expire at the end of the epoch.</p>
+          <p>The first steps of fee payment and publishing the verification status are conducted with the main, first account. This account is not anonymous because it is linked with the verification process. Start your verification using this account.</p>
+          <p>At the very last step, when you can mint a passport NFT, switch to another account. This passport NFT will expire at the end of the epoch.</p>
           <p>You can join every epoch and mint NFTs until your passport expires.</p>
+          <p>Coinpassport uses <a href="https://semaphore.pse.dev/" target="_blank" rel="noopener">Semaphore</a> to create and verify group membership proofs.</p>
           <h3 id="why-epochs">Why have epochs?</h3>
           <p>As part of its privacy scheme, every passport NFT is deactivated at the start of a new epoch. Each epoch is currently 8 weeks. After the change, each user must join the new group and mint a new passport NFT.</p>
           <ul>
-            <li>Enable the deactivation of expired passports without linking your expiration date to your NFTs.</li>
+            <li>Enables the deactivation of expired passports without linking your expiration date to your NFTs.</li>
             <li>Keeps ZK proof generation time shorter by only requiring the witness of each user active in the epoch instead of all time.</li>
             <li>Quicker restoration of anonymity in the event of a doxxing than the alternative of a single passport NFT active for the entire duration of your passport&apos;s lifetime.</li>
           </ul>
           <p>This small inconvenience of submitting a transaction each epoch to join the group and mint a new NFT offers privacy and usability benefits over a longer-duration passport NFT.</p>
-          <p>Privacy tip: If joining an epoch early, when it only has a few members, wait until more people have joined the group before minting your passport NFT.</p>
+          <p><em>Privacy tip:</em> If joining an epoch early, when it only has a few members, wait until more people have joined the group before minting your passport NFT.</p>
           <h3 id="developers">For Developers</h3>
           <p>Coinpassport deploys an ERC721 contract with view functions <code>addressActive</code> and <code>tokenActive</code> to assist in developing applications.</p>
           <ul>

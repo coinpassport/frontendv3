@@ -54,6 +54,7 @@ export default function MintPassport({
       setIdSeed({account, signature});
       return;
     }
+    if(shouldSwitchAccount && !confirm('Are you sure you wish to mint passport NFT on the same account you used to publish the verification results?\n\nThis action would result in no anonymity gained by the ZK snark privacy features.\n\nIf you desire privacy, press cancel and change your account in your wallet then try again.')) return;
     setErrorMsg(null);
     setLoadingProof(true);
     const signal = 1;
