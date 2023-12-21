@@ -13,7 +13,8 @@ export default function MintPassport({
   contracts,
   idSeed,
   setIdSeed,
-  acctInGroup
+  acctInGroup,
+  identityCommitmentCount,
 }) {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
@@ -120,6 +121,10 @@ export default function MintPassport({
           : txSuccess ? (<p className="form-status">Success!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         {shouldSwitchAccount && <p className="help">Switch accounts in your wallet before minting the NFT to achieve anonymity.</p>}
+        <p className="help">
+          Number of people in epoch: {Number(identityCommitmentCount)}
+          <ToolTip message="Only mint NFT if enough people have joined the current epoch to meet your privacy expectation." id="epoch-count" />
+        </p>
         <div className="field">
           <button disabled={!account || !acctInGroup || idSeed}>Sign Identity Commitment</button>
           <button disabled={!account || !idSeed || loadingProof || isLoading || txLoading || txSuccess}>Mint NFT</button>

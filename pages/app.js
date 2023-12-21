@@ -11,6 +11,7 @@ import PublishVerification from '../components/PublishVerification.js';
 import MintPassport from '../components/MintPassport.js';
 import ToolTip from '../components/ToolTip.js';
 import {Remaining} from '../components/Remaining.js';
+import Footer from '../components/Footer.js';
 
 const SERVER_URL = 'https://6ja7ykjh2ek5ojbx2hzhiga6sq0pvrcx.lambda-url.us-west-2.on.aws';
 export default function AppPage() {
@@ -19,7 +20,6 @@ export default function AppPage() {
   const contracts = chainContracts(chain);
   const publicClient = usePublicClient({ chainId: contracts.chain });
   const [accountStatus, setAccountStatus] = useState(null);
-  // TODO must be able to publish on multiple chains
   const [idSeed, setIdSeed] = useState(null);
   const [groupId, setGroupId] = useState(null);
   const [acctInGroup, setAcctInGroup] = useState(null);
@@ -59,6 +59,10 @@ export default function AppPage() {
       { // 6
         ...contracts.VerificationV2,
         functionName: 'groupCount',
+      },
+      { // 7
+        ...contracts.VerificationV2,
+        functionName: 'identityCommitmentCount',
       },
     ],
     watch: true,
@@ -156,18 +160,12 @@ export default function AppPage() {
         {...{contracts, accountStatus, idSeed, setIdSeed, idHashPublished, acctInGroup}}
       />
       <MintPassport
+        identityCommitmentCount={data[7].result}
         {...{contracts, accountStatus, idSeed, setIdSeed, acctInGroup}}
       />
     </>}
     </div>
-    <footer>
-      <menu>
-        <li>&copy; 2023</li>
-        <li><Link href="/">Home</Link></li>
-        <li><Link href="/docs">Docs</Link></li>
-        <li><Link href="/privacy-policy">Privacy</Link></li>
-      </menu>
-    </footer>
+    <Footer />
     </div>
   </>);
 }

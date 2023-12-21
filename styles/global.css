@@ -31,9 +31,13 @@ header {
   justify-content:space-between;
   padding: 10px;
 }
-header nav a { text-decoration:none;}
+header nav a,
+header h1 a { color:#fff; text-decoration:none;}
 header h1 {color:#fff; margin:0; padding:10px; font-size:130%;}
-h2 {font-family:SignikaNegative;font-weight:400;}
+h2, h3 {font-family:SignikaNegative;font-weight:400;}
+.header-bg h2 { color:#fff; padding:0 20px; margin:0 0 15px; }
+
+a { color: #034368; }
 
 .wizard {
   max-width: 500px;
@@ -285,4 +289,11 @@ section.accent-banner3 {
   border-top: 1px solid #aaa;
   margin:0 40px;
   max-width:100%;
+}
+
+.docs {display:flex; padding: 20px;}
+.table-of-contents ul { padding:0; position:sticky; top:0; }
+.table-of-contents li { list-style:none; padding: 10px 0; }
+@media (max-width:900px) {
+.docs {flex-direction:column; max-width:720px; margin:0 auto;}
 }

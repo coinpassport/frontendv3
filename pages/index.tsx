@@ -2,6 +2,8 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
+import Footer from '../components/Footer.js';
+
 const Home: NextPage = () => {
 
   return (<>
@@ -248,14 +250,7 @@ const Home: NextPage = () => {
         <Link href="/app" className="start masthead big">Start Verification</Link>
       </p>
     </section>
-    <footer>
-      <menu>
-        <li>&copy; 2023</li>
-        <li><Link href="/">Home</Link></li>
-        <li><Link href="/docs">Docs</Link></li>
-        <li><Link href="/privacy-policy">Privacy</Link></li>
-      </menu>
-    </footer>
+    <Footer />
   </>);
 };
 
