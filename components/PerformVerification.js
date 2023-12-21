@@ -6,9 +6,11 @@ import { generateNonce } from '../utils.js';
 export default function PerformVerification({ accountStatus, feePaidBlock, chainId, SERVER_URL }) {
   const { address: account } = useAccount();
   const [nonce, setNonce] = useState(generateNonce);
+  const [ errorMsg, setErrorMsg ] = useState(null);
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message: 'Paid Fee on Block #' + feePaidBlock?.toString() + '\n\n' + nonce,
     onSuccess: async (signature) => {
+      setErrorMsg(null);
       const response = await fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         body: JSON.stringify({ chainId, account, signature, nonce }),
@@ -16,7 +18,7 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
       });
       const data = await response.json();
       if(data.error) {
-        alert('Error: ' + data.error);
+        setErrorMsg('Error: ' + data.error);
         return;
       }
       document.location = data.redirect;
@@ -28,16 +30,10 @@ export default function PerformVerification({ accountStatus, feePaidBlock, chain
         <legend>
           Perform Verification
         </legend>
+        {errorMsg && <p className="form-status error">{errorMsg}</p>}
         {accountStatus?.status === 'requires_input' && (
-          <div className="active">
-            <span className="msg">Further Input Required</span>
-            <span className="subtext">Possible reasons:</span>
-            <ul>
-              <li>Verification canceled before completion</li>
-              <li>Submitted verification images did not validate</li>
-            </ul>
-            <span className="subtext">Please try again.</span>
-          </div>)}
+          <p className="form-status">Please try verifying again.</p>
+        )}
         <div className="field">
           <button disabled={!account || (accountStatus?.status === 'verified' && accountStatus.feePaidBlock === Number(feePaidBlock)) || feePaidBlock === 0n || isLoading || isSuccess}>Perform Verification</button>
         </div>

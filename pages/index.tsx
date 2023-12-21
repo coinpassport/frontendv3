@@ -15,7 +15,7 @@ const Home: NextPage = () => {
       <nav>
         <h1>CoinPassport</h1>
       </nav>
-      <Link href="/app" className="start">Start Verification ›</Link>
+      <Link href="/app/" className="start">Start Verification ›</Link>
     </header>
     <section id="home-banner">
       <div className="inner">
@@ -37,7 +37,7 @@ const Home: NextPage = () => {
       <article className="page">
         <h2>{__`Anonymously prove you're not a robot`}</h2>
         <p className="intro lead">{__`Prove you're a unique human by verifying your passport and publishing a hash of your passport number and country of citizenship to your Ethereum, Polygon, or Avalanche wallet.`}</p>
-        <Link href="/app" className="start masthead big">Start Verification ›</Link>
+        <Link href="/app/" className="start masthead big">Start Verification ›</Link>
       </article>
     </section>
     <section className="accent-banner3">
@@ -247,7 +247,7 @@ const Home: NextPage = () => {
         </details>
       </article>
       <p className="center">
-        <Link href="/app" className="start masthead big">Start Verification</Link>
+        <Link href="/app/" className="start masthead big">Start Verification</Link>
       </p>
     </section>
     <Footer />
