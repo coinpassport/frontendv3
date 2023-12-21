@@ -101,6 +101,7 @@ export default function AppPage() {
     },
   });
 
+  const shouldSwitchChain = chain && Number(contracts.chain) !== chain.id;
   const idHashPublished = data && data[2].result && BigInt(data[2].result) > 0;
   const chainId = '0x' + contracts.chain.toString(16);
   const fetchAccountStatus = async () => {
@@ -135,17 +136,21 @@ export default function AppPage() {
           <ConnectButton />
         </header>
         <div className="wizard">
-        {!account && <div className="wizard-connect"><p className="welcome">Connect your wallet to begin.</p><ConnectButton /></div>}
-    {isLoading && <p className="form-status loading">Loading data...</p>}
-    {isError && <p className="error">Error loading!</p>}
-    {data && !data[0].result && <p className="error">Error! Please refresh the page.</p>}
+        {shouldSwitchChain ?
+          <div className="error">Please switch to a supported chain!</div>
+        : <>
+          {!account && <div className="wizard-connect"><p className="welcome">Connect your wallet to begin.</p><ConnectButton /></div>}
+          {isLoading && <p className="form-status loading">Loading data...</p>}
+          {isError && <p className="error">Error loading!</p>}
+          {data && !data[0].result && <p className="error">Error! Please refresh the page.</p>}
+          {account && data && data[4].result && <p className="complete">Connected wallet account is an active passport NFT holder!</p>}
+          {expiration && <p className="complete">Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()}<ToolTip message="Date fuzzed from actual date on document to enhance privacy" id="date-fuzzed" /></p>}
+          {nextGroupStart && <p className="form-status">
+            Next group starts in <Remaining value={nextGroupStart} onlyFirst={true} />
+            <ToolTip message={(new Date(Number(nextGroupStart) * 1000)).toLocaleString()} id="next-group-time" />
+          </p>}
+        </>}
     {data && data[0].result && <>
-      {account && data[4].result && <p className="complete">Connected wallet account is an active passport NFT holder!</p>}
-      {expiration && <p className="complete">Connected wallet is linked to a passport that expires on {(new Date(Number(expiration) * 1000)).toLocaleDateString()}<ToolTip message="Date fuzzed from actual date on document to enhance privacy" id="date-fuzzed" /></p>}
-      {nextGroupStart && <p className="form-status">
-        Next group starts in <Remaining value={nextGroupStart} onlyFirst={true} />
-        <ToolTip message={(new Date(Number(nextGroupStart) * 1000)).toLocaleString()} id="next-group-time" />
-      </p>}
       <PayFee
         feePaidBlock={data[1].result}
         feeToken={data[0].result[0]}

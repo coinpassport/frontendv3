@@ -52,13 +52,13 @@ export default function DocsPage() {
           </ul>
           <p>This small inconvenience of submitting a transaction each epoch to join the group and mint a new NFT offers privacy and usability benefits over a longer-duration passport NFT.</p>
           <p>Privacy tip: If joining an epoch early, when it only has a few members, wait until more people have joined the group before minting your passport NFT.</p>
-          <h3>For Developers</h3>
+          <h3 id="developers">For Developers</h3>
           <p>Coinpassport deploys an ERC721 contract with view functions <code>addressActive</code> and <code>tokenActive</code> to assist in developing applications.</p>
           <ul>
-            <li>Holesky - <a target="_blank" rel="noopener" href="https://holesky.etherscan.io/address/0x7ad8f110ff586d5f8079cb2253ea057be847e5ce">0x7ad8f110ff586d5f8079cb2253ea057be847e5ce</a></li>
-            <li>Mumbai - <a target="_blank" rel="noopener" href="https://mumbai.polygonscan.com/address/0xeded09fea28c8a21c69007019f31147df3a4180f">0xeded09fea28c8a21c69007019f31147df3a4180f</a></li>
+            <li>Holesky - <a target="_blank" rel="noopener" href="https://holesky.etherscan.io/address/0x7ad8f110ff586d5f8079cb2253ea057be847e5ce">0x7ad8&hellip;e5ce</a></li>
+            <li>Mumbai - <a target="_blank" rel="noopener" href="https://mumbai.polygonscan.com/address/0xeded09fea28c8a21c69007019f31147df3a4180f">0xeded&hellip;180f</a></li>
           </ul>
-          <h3>Contact and Resources</h3>
+          <h3 id="contact">Contact and Resources</h3>
           <p>Email: <a href="mailto:info@coinpassport.net">info@coinpassport.net</a></p>
           <p>Github: <a target="_blank" rel="noopener" href="https://github.com/coinpassport">@coinpassport</a></p>
           <p>Twitter: <a target="_blank" rel="noopener" href="https://twitter.com/coinpassport1">@coinpassport1</a></p>

@@ -35,9 +35,6 @@ export default function PublishVerification({
   });
 
   const shouldSwitchChain = chain && Number(contracts.chain) !== chain.id;
-  if(shouldSwitchChain) return (
-    <button onClick={() => switchNetwork(Number(contracts.chain))} type="button">Switch to {contracts.name}</button>
-  );
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -69,8 +66,8 @@ export default function PublishVerification({
           : txSuccess ? (<p className="complete">Published Successfully!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         <div className="field">
-          <button disabled={!account || !(accountStatus?.status === 'verified') || idHashPublished || txLoading || txSuccess}>Sign and Submit</button>
-          <button disabled={!account || !(accountStatus?.status === 'verified') || !idHashPublished || acctInGroup || txLoading || txSuccess}>Join Current Group</button>
+          <button disabled={shouldSwitchChain || !account || !(accountStatus?.status === 'verified') || idHashPublished || txLoading || txSuccess}>Sign and Submit</button>
+          <button disabled={shouldSwitchChain || !account || !(accountStatus?.status === 'verified') || !idHashPublished || acctInGroup || txLoading || txSuccess}>Join Current Group</button>
         </div>
       </fieldset>
     </form>

@@ -79,9 +79,6 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
   });
 
   const shouldSwitchChain = chain && Number(contracts.chain) !== chain.id;
-  if(shouldSwitchChain) return (
-    <button onClick={() => switchNetwork(Number(contracts.chain))} type="button">Switch to {contracts.name}</button>
-  );
 
   const payNative = (event) => {
     event.preventDefault();
@@ -113,8 +110,8 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
             <ToolTip message="Your account holds a native fee token that may be redeemed for a verification." id="native-token" />
           </>}
         </legend>
-        {feePaidBlock > 0 && <span className="complete">Fee Paid!</span>}
-        {insufficientBalance && feePaidBlock < 1 && <span className="error">Insufficient Balance!</span>}
+        {!shouldSwitchChain && feePaidBlock > 0 && <span className="complete">Fee Paid!</span>}
+        {!shouldSwitchChain && insufficientBalance && feePaidBlock < 1 && <span className="error">Insufficient Balance!</span>}
         {approveLoading && <p className="form-status">Waiting for user confirmation...</p>}
         {approveSuccess && (
           approveTxError ? (<p className="form-status error">Approval transaction error!</p>)
@@ -130,9 +127,9 @@ export default function PayFee({ feePaidBlock, feeToken, feeAmount, contracts })
           : (<p className="form-status">Transaction sent...</p>))}
         {payTxError && <p className="form-status error">Error!</p>}
         <div className="field">
-          <button disabled={!account || !needsApproval || approveLoading || approveTxLoading}>Approve</button>
-          <button disabled={!account || payTxSuccess || needsApproval || payLoading || payTxLoading}>Pay Fee</button>
-          {hasNativeToken && <button disabled={!account || payTxSuccess || !hasNativeToken || payLoading || payTxLoading} type="button" onClick={payNative}>Redeem Native</button>}
+          <button disabled={shouldSwitchChain || !account || !needsApproval || approveLoading || approveTxLoading}>Approve</button>
+          <button disabled={shouldSwitchChain || !account || payTxSuccess || needsApproval || payLoading || payTxLoading}>Pay Fee</button>
+          {!shouldSwitchChain && hasNativeToken && <button disabled={!account || payTxSuccess || !hasNativeToken || payLoading || payTxLoading} type="button" onClick={payNative}>Redeem Native</button>}
         </div>
       </fieldset>
     </form>

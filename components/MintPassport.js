@@ -46,9 +46,6 @@ export default function MintPassport({
   });
 
   const shouldSwitchChain = chain && Number(contracts.chain) !== chain.id;
-  if(shouldSwitchChain) return (
-    <button onClick={() => switchNetwork(Number(contracts.chain))} type="button">Switch to {contracts.name}</button>
-  );
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -121,13 +118,13 @@ export default function MintPassport({
           : txSuccess ? (<p className="form-status">Success!</p>)
           : (<p className="form-status">Transaction sent...</p>))}
         {shouldSwitchAccount && <p className="help">Switch accounts in your wallet before minting the NFT to achieve anonymity.</p>}
-        <p className="help">
-          Number of people in epoch: {Number(identityCommitmentCount)}
+        {!shouldSwitchChain && <p className="help">
+          Passports in epoch: {Number(identityCommitmentCount)}
           <ToolTip message="Only mint NFT if enough people have joined the current epoch to meet your privacy expectation." id="epoch-count" />
-        </p>
+        </p>}
         <div className="field">
-          <button disabled={!account || !acctInGroup || idSeed}>Sign Identity Commitment</button>
-          <button disabled={!account || !idSeed || loadingProof || isLoading || txLoading || txSuccess}>Mint NFT</button>
+          <button disabled={shouldSwitchChain || !account || !acctInGroup || idSeed}>Sign Identity Commitment</button>
+          <button disabled={shouldSwitchChain || !account || !idSeed || loadingProof || isLoading || txLoading || txSuccess}>Mint NFT</button>
         </div>
       </fieldset>
     </form>
